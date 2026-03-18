@@ -1,0 +1,23 @@
+services:
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: wptechnix/wp-models-dev:latest
+    volumes:
+      # Mount project root into the container
+      - ../:/app
+      # Persist Composer cache between runs
+      - composer-cache:/root/.composer
+      # Persist npm cache between runs
+      - npm-cache:/root/.npm
+    working_dir: /app
+    tty: true
+    stdin_open: true
+    environment:
+      # Disable ANSI colours inside non-interactive docker exec calls
+      - TERM=xterm-256color
+
+volumes:
+  composer-cache:
+  npm-cache:

@@ -1,0 +1,27 @@
+# IDE / AI
+.idea
+.vscode
+.claude
+repomix-output.md
+
+# Lint
+phpcs.xml
+phpstan.neon
+phpunit.xml
+.phpunit-cache
+.phpunit.cache
+.phpunit.result.cache
+
+# Composer & NPM
+composer.lock
+package-lock.json
+
+# Env
+.env
+.env.*
+docker/.env
+docker/.env.*
+
+# Node Modules / Vendor
+vendor/
+node_modules
