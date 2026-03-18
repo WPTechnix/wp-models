@@ -1,6 +1,6 @@
 {
   "name": "wp-models",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Development dependencies for commit linting",
   "private": true,
   "scripts": {
