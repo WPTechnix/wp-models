@@ -1,6 +1,6 @@
 {
   "name": "wptechnix/wp-models",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Type-safe Active Record ORM models and entities for WordPress plugin development",
   "type": "library",
   "license": "MIT",
