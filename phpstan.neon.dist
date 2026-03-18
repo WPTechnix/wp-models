@@ -1,0 +1,23 @@
+includes:
+  - vendor/phpstan/phpstan-strict-rules/rules.neon
+  - vendor/szepeviktor/phpstan-wordpress/extension.neon
+
+parameters:
+  level: 10
+
+  paths:
+    - ./src
+
+  treatPhpDocTypesAsCertain: false
+
+  ignoreErrors:
+    - message: '#Parameter \#1 \$query of method wpdb::prepare\(\) expects literal-string#'
+
+  # PHPStan cannot statically verify that ABSPATH is always defined
+  # at library load-time, so silence that false-positive.
+  dynamicConstantNames:
+    - ABSPATH
+
+  excludePaths:
+    - vendor
+    - tests

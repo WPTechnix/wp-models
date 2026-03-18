@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Thin wrapper — runs phpunit inside the Docker dev container.
+# Usage:
+#   ./bin/phpunit [<phpunit-args>]
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+COMPOSE_FILE="${SCRIPT_DIR}/../docker/docker-compose.yml"
+
+# Default arguments as an array
+DEFAULT_ARGS=(--configuration phpunit.xml --testdox --colors=always)
+
+# If user passed arguments, use them; otherwise use defaults
+if [ "$#" -gt 0 ]; then
+  ARGS=("$@")
+else
+  ARGS=("${DEFAULT_ARGS[@]}")
+fi
+
+docker compose -f "${COMPOSE_FILE}" run --rm php \
+  vendor/bin/phpunit "${ARGS[@]}"
