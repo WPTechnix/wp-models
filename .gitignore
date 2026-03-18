@@ -1,0 +1,30 @@
+# Dependencies
+/vendor/
+/node_modules/
+
+# Build artifacts
+/build/
+
+# PHPUnit cache
+/.phpunit.cache/
+/.phpunit.result.cache/
+
+# PHPStan cache
+/.phpstan.cache/
+
+# Composer lock (library — consumers manage their own lock)
+composer.lock
+
+# npm lock (committed for reproducible local dev)
+# package-lock.json  ← keep this committed
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log

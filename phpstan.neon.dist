@@ -1,0 +1,26 @@
+includes:
+  - vendor/phpstan/phpstan-strict-rules/rules.neon
+  - vendor/szepeviktor/phpstan-wordpress/extension.neon
+
+parameters:
+  level: 8
+
+  paths:
+    - src
+
+  # WordPress core classes/functions come from the stubs provided by
+  # szepeviktor/phpstan-wordpress — no extra bootstrapFiles needed.
+
+  # Relax generic-class check: WordPress hooks use bare class-string
+  checkGenericClassInNonGenericObjectType: false
+
+  # PHPStan cannot statically verify that ABSPATH is always defined
+  # at library load-time, so silence that false-positive.
+  dynamicConstantNames:
+    - ABSPATH
+
+  excludePaths:
+    - vendor
+    - node_modules
+    - build
+    - tests

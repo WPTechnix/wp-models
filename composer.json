@@ -1,0 +1,68 @@
+{
+  "name": "wptechnix/wp-models",
+  "version": "0.0.0",
+  "description": "Type-safe Active Record ORM models and entities for WordPress plugin development",
+  "type": "library",
+  "license": "MIT",
+  "keywords": [
+    "wordpress",
+    "orm",
+    "model",
+    "entity",
+    "database",
+    "active-record",
+    "wpdb"
+  ],
+  "homepage": "https://github.com/wptechnix/wp-models",
+  "authors": [
+    {
+      "name": "wptechnix",
+      "email": "developers@wptechnix.com",
+      "homepage": "https://wptechnix.com"
+    }
+  ],
+  "require": {
+    "php": "^8.1"
+  },
+  "require-dev": {
+    "phpstan/phpstan": "^2.1",
+    "phpstan/phpstan-strict-rules": "^2.0",
+    "phpunit/phpunit": "^9.6",
+    "squizlabs/php_codesniffer": "^3.13 || ^4.0",
+    "szepeviktor/phpstan-wordpress": "^2.0",
+    "wptechnix/coding-standards": "^2.0.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "WPTechnix\\WPModels\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "WPTechnix\\WPModels\\Tests\\": "tests/"
+    }
+  },
+  "minimum-stability": "stable",
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    },
+    "platform": {
+      "php": "8.1"
+    },
+    "sort-packages": true
+  },
+  "scripts": {
+    "fix:phpcbf": "vendor/bin/phpcbf || true",
+    "lint:phpcs": "vendor/bin/phpcs --report=full",
+    "lint:phpstan": "vendor/bin/phpstan analyse --memory-limit=2G --error-format=table",
+    "lint": [
+      "@fix:phpcbf",
+      "@lint:phpcs",
+      "@lint:phpstan"
+    ],
+    "test": "vendor/bin/phpunit --configuration phpunit.xml --testdox --colors=always",
+    "test:fast": "vendor/bin/phpunit --configuration phpunit.xml --colors=always --stop-on-failure",
+    "test:coverage": "vendor/bin/phpunit --configuration phpunit.xml --coverage-html build/coverage --coverage-clover build/logs/clover.xml"
+  }
+}

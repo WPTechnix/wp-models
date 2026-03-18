@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(chmod +x /e/projects/github/wp-models/bin/composer /e/projects/github/wp-models/bin/php /e/projects/github/wp-models/bin/npm /e/projects/github/wp-models/bin/phpunit /e/projects/github/wp-models/bin/phpcs)"
+    ]
+  }
+}
