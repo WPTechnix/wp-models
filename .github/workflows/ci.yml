@@ -1,0 +1,220 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # PHPUnit — matrix across all supported PHP versions, no coverage driver loaded
+  # so these runs are as fast as possible.
+  # PHP 8.4 is experimental: phpunit ^9.6 is not officially supported there,
+  # so failures on that version do not block the workflow.
+  # ─────────────────────────────────────────────────────────────────────────────
+  tests:
+    name: PHPUnit / PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ["8.1", "8.2", "8.3"]
+        include:
+          - php: "8.4"
+            experimental: true
+
+    continue-on-error: ${{ matrix.experimental == true }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, intl
+          coverage: none
+          tools: composer:v2
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ runner.os }}-php${{ matrix.php }}-${{ hashFiles('composer.json') }}
+          restore-keys: |
+            composer-${{ runner.os }}-php${{ matrix.php }}-
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader --no-progress
+
+      - name: Run PHPUnit
+        run: composer test
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Coverage — runs only on pushes to main so PRs stay fast.
+  # Uses Xdebug on PHP 8.1 (the canonical baseline version).
+  # Generates a Clover XML report and a human-readable text summary visible
+  # directly in the Actions log. The Clover file is uploaded as a workflow
+  # artifact for 30 days (small file, no HTML bloat).
+  # ─────────────────────────────────────────────────────────────────────────────
+  coverage:
+    name: PHPUnit / Coverage
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP 8.1 with Xdebug
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.1"
+          extensions: mbstring, intl
+          coverage: xdebug
+          tools: composer:v2
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ runner.os }}-php8.1-${{ hashFiles('composer.json') }}
+          restore-keys: |
+            composer-${{ runner.os }}-php8.1-
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader --no-progress
+
+      - name: Run PHPUnit with coverage
+        # Generates build/logs/clover.xml and prints a text summary to the log.
+        # HTML reports are intentionally omitted here — use `composer test:coverage`
+        # locally when you need an interactive HTML report.
+        run: composer test:coverage-ci
+
+      - name: Upload Clover report
+        uses: actions/upload-artifact@v4
+        with:
+          name: clover-coverage
+          path: build/logs/clover.xml
+          retention-days: 30
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # PHP CodeSniffer
+  # ─────────────────────────────────────────────────────────────────────────────
+  phpcs:
+    name: PHP CodeSniffer
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP 8.1
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.1"
+          extensions: mbstring
+          coverage: none
+          tools: composer:v2
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ runner.os }}-php8.1-${{ hashFiles('composer.json') }}
+          restore-keys: |
+            composer-${{ runner.os }}-php8.1-
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader --no-progress
+
+      - name: Run PHPCS
+        run: composer lint:phpcs
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # PHPStan Static Analysis
+  # ─────────────────────────────────────────────────────────────────────────────
+  phpstan:
+    name: PHPStan (level 8)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP 8.1
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.1"
+          extensions: mbstring
+          coverage: none
+          tools: composer:v2
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ runner.os }}-php8.1-${{ hashFiles('composer.json') }}
+          restore-keys: |
+            composer-${{ runner.os }}-php8.1-
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader --no-progress
+
+      - name: Cache PHPStan result cache
+        uses: actions/cache@v4
+        with:
+          path: .phpstan.cache
+          key: phpstan-${{ runner.os }}-${{ hashFiles('composer.json', 'phpstan.neon.dist') }}
+          restore-keys: |
+            phpstan-${{ runner.os }}-
+
+      - name: Run PHPStan
+        run: composer lint:phpstan
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Commitlint — validates PR commit messages against Conventional Commits
+  # ─────────────────────────────────────────────────────────────────────────────
+  commitlint:
+    name: Commitlint
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Fetch enough history to compare base..head of the PR
+          fetch-depth: 0
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install Node dependencies
+        # Use `npm install` (not `npm ci`) in case package-lock.json has not
+        # yet been committed. Switch to `npm ci` once the lock file is committed.
+        run: npm install
+
+      - name: Validate commit messages
+        run: >
+          npx commitlint
+          --from ${{ github.event.pull_request.base.sha }}
+          --to   ${{ github.event.pull_request.head.sha }}
+          --verbose

@@ -1,0 +1,20 @@
+{
+  "name": "wp-models",
+  "version": "0.0.0",
+  "description": "Development dependencies for commit linting",
+  "private": true,
+  "scripts": {
+    "prepare": "husky",
+    "commitlint": "commitlint --edit",
+    "repomix": "repomix --style markdown --include *.{php,js,ts,tsx,css,scss,json,md,txt,html,xml,yml,yaml,csv},**/*.{php,js,ts,tsx,css,scss,json,md,txt,html,xml,yml,yaml,csv}"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^20.1.0",
+    "@commitlint/config-conventional": "^20.0.0",
+    "husky": "^9.1.7"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
