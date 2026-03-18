@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="WP Models">
+  <description>WP Models Coding Standards — extends WPTechnix base ruleset.</description>
+
+  <!-- Paths to check -->
+  <file>src</file>
+  <file>tests</file>
+
+  <!-- Show progress and sniff source -->
+  <arg value="sp"/>
+  <arg name="basepath" value="."/>
+  <arg name="extensions" value="php"/>
+  <arg name="parallel" value="75"/>
+  <arg name="colors"/>
+
+  <!-- PHP version -->
+  <config name="php_version" value="80100"/>
+
+  <!-- Extend the WPTechnix base standard (installed via wptechnix/coding-standards) -->
+  <rule ref="WPTechnix"/>
+
+  <!-- Exclude test bootstrap noise -->
+  <exclude-pattern>vendor/*</exclude-pattern>
+  <exclude-pattern>node_modules/*</exclude-pattern>
+  <exclude-pattern>build/*</exclude-pattern>
+
+</ruleset>
