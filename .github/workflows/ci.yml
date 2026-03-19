@@ -103,14 +103,7 @@ jobs:
         # Generates build/logs/clover.xml and prints a text summary to the log.
         # HTML reports are intentionally omitted here — use `composer test:coverage`
         # locally when you need an interactive HTML report.
-        run: composer test:coverage-ci
-
-      - name: Upload Clover report
-        uses: actions/upload-artifact@v4
-        with:
-          name: clover-coverage
-          path: build/logs/clover.xml
-          retention-days: 30
+        run: composer test
 
   # ─────────────────────────────────────────────────────────────────────────────
   # PHP CodeSniffer
